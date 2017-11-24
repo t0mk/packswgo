@@ -9,7 +9,7 @@ TEMPLATE = """package packswgo
 
 import (
     "os"
-    "log"
+    "fmt"
 )
 
 // APITokenVar is the name of teh envvar which holds auth token to Packet API
@@ -30,14 +30,14 @@ func getCfg(token, apiURL string) *Configuration {{
 }}
 
 // NewClient returns Client
-func NewClient() Client {{
+func NewClient() (*Client, error) {{
         return NewClientWithToken(os.Getenv(APITokenVar))
 }}
 
 // NewClientWithToken returns API client
-func NewClientWithToken(token string) Client {{
+func NewClientWithToken(token string) (*Client, error) {{
         if token == "" {{
-            log.Fatal("You must provide Packet API Auth token")
+            return nil, fmt.Errorf("You must pass Packet API Token, for example via env var %s", APITokenVar)
         }}
         apiURL := "https://api.packet.net"
         if os.Getenv(APIURLVar) != "" {{
@@ -45,9 +45,9 @@ func NewClientWithToken(token string) Client {{
         }}
 
 	cfg := getCfg(token, apiURL)
-	return Client{{
+	return &Client{{
 {clientStructCreation}
-	}}
+	}}, nil
 }}
 
 """

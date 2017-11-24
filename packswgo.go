@@ -1,14 +1,14 @@
 package packswgo
 
 import (
-	"log"
-	"os"
+    "os"
+    "fmt"
 )
 
 // APITokenVar is the name of teh envvar which holds auth token to Packet API
 const (
-	APITokenVar = "PACKET_AUTH_TOKEN"
-	APIURLVar   = "PACKET_API_URL"
+    APITokenVar = "PACKET_AUTH_TOKEN"
+    APIURLVar = "PACKET_API_URL"
 )
 
 type Client struct {
@@ -48,28 +48,28 @@ type Client struct {
 
 func getCfg(token, apiURL string) *Configuration {
 	cfg := NewConfiguration()
-	cfg.APIKey["X-Auth-Token"] = token
-	cfg.BasePath = apiURL
+        cfg.APIKey["X-Auth-Token"] = token
+        cfg.BasePath = apiURL
 	return cfg
 }
 
 // NewClient returns Client
-func NewClient() Client {
-	return NewClientWithToken(os.Getenv(APITokenVar))
+func NewClient() (*Client, error) {
+        return NewClientWithToken(os.Getenv(APITokenVar))
 }
 
 // NewClientWithToken returns API client
-func NewClientWithToken(token string) Client {
-	if token == "" {
-		log.Fatal("You must provide Packet API Auth token")
-	}
-	apiURL := "https://api.packet.net"
-	if os.Getenv(APIURLVar) != "" {
-		apiURL = os.Getenv(APIURLVar)
-	}
+func NewClientWithToken(token string) (*Client, error) {
+        if token == "" {
+            return nil, fmt.Errorf("You must pass Packet API Token, for example via env var %s", APITokenVar)
+        }
+        apiURL := "https://api.packet.net"
+        if os.Getenv(APIURLVar) != "" {
+            apiURL = os.Getenv(APIURLVar)
+        }
 
 	cfg := getCfg(token, apiURL)
-	return Client{
+	return &Client{
 		VirtualNetworksApi{Configuration: cfg},
 		NotificationsApi{Configuration: cfg},
 		LicensesApi{Configuration: cfg},
@@ -102,5 +102,7 @@ func NewClientWithToken(token string) Client {
 		OperatingSystemsApi{Configuration: cfg},
 		DevicesApi{Configuration: cfg},
 		ActionsApi{Configuration: cfg},
-	}
+	}, nil
 }
+
+
