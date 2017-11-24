@@ -7,55 +7,51 @@ apire  = re.compile(r'type .*Api struct')
 
 TEMPLATE = """package packswgo
 
-import "os"
+import (
+    "os"
+    "log"
+)
 
 // APITokenVar is the name of teh envvar which holds auth token to Packet API
-const APITokenVar = "PACKET_AUTH_TOKEN"
+const (
+    APITokenVar = "PACKET_AUTH_TOKEN"
+    APIURLVar = "PACKET_API_URL"
+)
 
 type Client struct {{
 {clientStructBody}
 }}
 
-func getCfg() *Configuration {{
+func getCfg(token, apiURL string) *Configuration {{
 	cfg := NewConfiguration()
-	cfg.APIKey["X-Auth-Token"] = os.Getenv(APITokenVar)
+        cfg.APIKey["X-Auth-Token"] = token
+        cfg.BasePath = apiURL
 	return cfg
 }}
 
-// NewClient returns API client
+// NewClient returns Client
 func NewClient() Client {{
-	cfg := getCfg()
+        return NewClientWithToken(os.Getenv(APITokenVar))
+}}
+
+// NewClientWithToken returns API client
+func NewClientWithToken(token string) Client {{
+        if token == "" {{
+            log.Fatal("You must provide Packet API Auth token")
+        }}
+        apiURL := "https://api.packet.net"
+        if os.Getenv(APIURLVar) != "" {{
+            apiURL = os.Getenv(APIURLVar)
+        }}
+
+	cfg := getCfg(token, apiURL)
 	return Client{{
 {clientStructCreation}
 	}}
 }}
 
-{generatedMethods}
-
 """
 
-def funcStart(l):
-    return funcre.sub("", l)
-
-def api(l):
-    return (l[8:].split(")")[0])[:-3]
-
-def funcCall(l):
-    fs = funcStart(l)
-    name, rest = fs.split("(",1)
-    fargs = (rest.split(")", 1)[0]).split(",")
-    fargnames = [i.strip().split(" ")[0] for i in fargs]
-    return name + "(" + ", ".join(fargnames) + ")"
-
-
-def generateFunc(l):
-    return "func (c *Client) " + funcStart(l) + "\n\treturn c." + api(l) + "." + funcCall(l) + "\n}"
-
-def generateApiMethods():
-    for f in glob.glob("*_api.go"):
-        for l in open(f).readlines():
-            if funcre.match(l):
-                yield(generateFunc(l[:-1]))
 
 def findApis():
     for f in glob.glob("*_api.go"):
@@ -64,12 +60,11 @@ def findApis():
                 yield(l.split(" ")[1][:-3])
 d = {}
 d['clientStructBody'] = "\n".join(
-    ["\t{0} {0}Api".format(i) for i in findApis()]
+    ["\t{0}Api".format(i) for i in findApis()]
 )
 d['clientStructCreation'] = "\n".join(
-    ["\t\t{0}: {0}Api{{Configuration: cfg}},".format(i) for i in findApis()]
+    ["\t\t{0}Api{{Configuration: cfg}},".format(i) for i in findApis()]
 )
-d['generatedMethods'] = "\n\n".join(generateApiMethods())
 
 print(TEMPLATE.format(**d))
 
