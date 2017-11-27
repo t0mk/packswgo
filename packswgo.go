@@ -1,16 +1,19 @@
 package packswgo
 
 import (
-    "os"
-    "fmt"
+	"encoding/json"
+	"fmt"
+	"os"
+	"strings"
 )
 
 // APITokenVar is the name of teh envvar which holds auth token to Packet API
 const (
-    APITokenVar = "PACKET_AUTH_TOKEN"
-    APIURLVar = "PACKET_API_URL"
+	APITokenVar = "PACKET_AUTH_TOKEN"
+	APIURLVar   = "PACKET_API_URL"
 )
 
+// Client is wrapping struc
 type Client struct {
 	VirtualNetworksApi
 	NotificationsApi
@@ -48,25 +51,25 @@ type Client struct {
 
 func getCfg(token, apiURL string) *Configuration {
 	cfg := NewConfiguration()
-        cfg.APIKey["X-Auth-Token"] = token
-        cfg.BasePath = apiURL
+	cfg.APIKey["X-Auth-Token"] = token
+	cfg.BasePath = apiURL
 	return cfg
 }
 
 // NewClient returns Client
 func NewClient() (*Client, error) {
-        return NewClientWithToken(os.Getenv(APITokenVar))
+	return NewClientWithToken(os.Getenv(APITokenVar))
 }
 
 // NewClientWithToken returns API client
 func NewClientWithToken(token string) (*Client, error) {
-        if token == "" {
-            return nil, fmt.Errorf("You must pass Packet API Token, for example via env var %s", APITokenVar)
-        }
-        apiURL := "https://api.packet.net"
-        if os.Getenv(APIURLVar) != "" {
-            apiURL = os.Getenv(APIURLVar)
-        }
+	if token == "" {
+		return nil, fmt.Errorf("You must pass Packet API Token, for example via env var %s", APITokenVar)
+	}
+	apiURL := "https://api.packet.net"
+	if os.Getenv(APIURLVar) != "" {
+		apiURL = os.Getenv(APIURLVar)
+	}
 
 	cfg := getCfg(token, apiURL)
 	return &Client{
@@ -105,4 +108,15 @@ func NewClientWithToken(token string) (*Client, error) {
 	}, nil
 }
 
-
+// CheckForAppError is checking for error from response
+func CheckForAppError(r *APIResponse) error {
+	type errs struct {
+		Errors []string `json:"errors"`
+	}
+	var es errs
+	json.Unmarshal(r.Payload, &es)
+	if len(es.Errors) > 0 {
+		return fmt.Errorf("%s in API response", strings.Join(es.Errors, ", "))
+	}
+	return nil
+}

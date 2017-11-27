@@ -1,4 +1,4 @@
-/* 
+/*
  * Packet API
  *
  * This is the API for Packet. Interact with your devices, user account, and projects.
@@ -11,8 +11,7 @@
 package packswgo
 
 type ProjectCreateInput struct {
-
 	Name string `json:"name"`
 
-	PaymentMethodId string `json:"payment_method_id"`
+	PaymentMethodId string `json:"payment_method_id,omitempty"`
 }
