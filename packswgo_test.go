@@ -12,9 +12,9 @@ import (
 
 const (
 	packetTokenEnvVar = "PACKET_AUTH_TOKEN"
-	packngoAccTestVar = "PACKNGO_TEST_ACTUAL_API"
-	testProjectPrefix = "PACKNGO_TEST_DELME_2d767456_"
-	testFacilityVar   = "PACKNGO_TEST_FACILITY"
+	packngoAccTestVar = "PACKSWGO_TEST_ACTUAL_API"
+	testProjectPrefix = "PACKSWGO_TEST_DELME_2d767456_"
+	testFacilityVar   = "PACKSWGO_TEST_FACILITY"
 )
 
 func testFacility() string {

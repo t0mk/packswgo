@@ -10,7 +10,11 @@ func waitDeviceActive(id string, c *Client) (*Device, error) {
 	// 15 minutes = 180 * 5sec-retry
 	for i := 0; i < 180; i++ {
 		<-time.After(5 * time.Second)
-		d, _, err := c.FindDeviceById(id, "facility")
+		d, resp, err := c.FindDeviceById(id, "facility")
+		if err != nil {
+			return nil, err
+		}
+		err = CheckForAppError(resp)
 		if err != nil {
 			return nil, err
 		}
@@ -45,10 +49,15 @@ func TestAccDeviceBasic(t *testing.T) {
 		BillingCycle:    "hourly",
 	}
 
-	d, _, err := c.CreateDevice(projectId, cr)
+	d, resp, err := c.CreateDevice(projectId, cr)
 	if err != nil {
 		t.Fatal(err)
 	}
+	err = CheckForAppError(resp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	defer deleteDevice(t, c, d.Id)
 
 	dId := d.Id

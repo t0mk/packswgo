@@ -1,4 +1,4 @@
-/* 
+/*
  * Packet API
  *
  * This is the API for Packet. Interact with your devices, user account, and projects.
@@ -15,7 +15,6 @@ import (
 )
 
 type Project struct {
-
 	Id string `json:"id,omitempty"`
 
 	Name string `json:"name,omitempty"`
@@ -34,7 +33,7 @@ type Project struct {
 
 	Invitations []Href `json:"invitations,omitempty"`
 
-	PaymentMethod []Href `json:"payment_method,omitempty"`
+	PaymentMethod Href `json:"payment_method,omitempty"`
 
 	Devices []Href `json:"devices,omitempty"`
 

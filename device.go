@@ -1,4 +1,4 @@
-/* 
+/*
  * Packet API
  *
  * This is the API for Packet. Interact with your devices, user account, and projects.
@@ -15,7 +15,6 @@ import (
 )
 
 type Device struct {
-
 	Id string `json:"id,omitempty"`
 
 	ShortId string `json:"short_id,omitempty"`
@@ -84,5 +83,5 @@ type Device struct {
 
 	IpAddresses []IpAssignment `json:"ip_addresses,omitempty"`
 
-	ProvisioningEvents Event `json:"provisioning_events,omitempty"`
+	ProvisioningEvents []Event `json:"provisioning_events,omitempty"`
 }

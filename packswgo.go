@@ -11,6 +11,7 @@ import (
 const (
 	APITokenVar = "PACKET_AUTH_TOKEN"
 	APIURLVar   = "PACKET_API_URL"
+	debugEnvVar = "PACKSWGO_DEBUG"
 )
 
 // Client is wrapping struc
@@ -53,6 +54,7 @@ func getCfg(token, apiURL string) *Configuration {
 	cfg := NewConfiguration()
 	cfg.APIKey["X-Auth-Token"] = token
 	cfg.BasePath = apiURL
+	cfg.Debug = os.Getenv(debugEnvVar) != ""
 	return cfg
 }
 

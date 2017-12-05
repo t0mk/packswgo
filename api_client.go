@@ -1,4 +1,4 @@
-/* 
+/*
  * Packet API
  *
  * This is the API for Packet. Interact with your devices, user account, and projects.
@@ -13,11 +13,11 @@ package packswgo
 import (
 	"bytes"
 	"fmt"
+	"net/url"
 	"path/filepath"
 	"reflect"
 	"strings"
-	"net/url"
-	"io/ioutil"
+
 	"gopkg.in/go-resty/resty.v0"
 )
 
@@ -120,7 +120,7 @@ func (c *APIClient) prepareClient() *resty.Client {
 	if c.config.Timeout != nil {
 		rClient.SetTimeout(*c.config.Timeout)
 	}
-	rClient.SetLogger(ioutil.Discard)
+	//rClient.SetLogger(ioutil.Discard)
 	return rClient
 }
 
@@ -132,7 +132,6 @@ func (c *APIClient) prepareRequest(
 	formParams map[string]string,
 	fileName string,
 	fileBytes []byte) *resty.Request {
-
 
 	request := rClient.R()
 	request.SetBody(postBody)
